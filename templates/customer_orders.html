@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t('my_orders') }} - {{ t('app_name') }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4">
+        <i class="bi bi-box-seam text-primary"></i> {{ t('my_orders') }}
+    </h2>
+    
+    {% if orders %}
+    <div class="row">
+        {% for order in orders %}
+        <div class="col-12 mb-4">
+            <div class="card shadow-sm order-card">
+                <div class="card-header d-flex justify-content-between align-items-center
+                    {% if order.status == 'Delivered' %}bg-success text-white
+                    {% elif order.status == 'Accepted' %}bg-primary text-white
+                    {% elif order.status == 'Rejected' %}bg-danger text-white
+                    {% else %}bg-warning{% endif %}">
+                    <div>
+                        <h5 class="mb-0">
+                            <i class="bi bi-receipt"></i> {{ t('order') }} #{{ order.id }}
+                        </h5>
+                        <small>{{ order.order_date }}</small>
+                    </div>
+                    <div>
+                        {% if order.status == 'Pending' %}
+                            <span class="badge bg-dark fs-6">
+                                <i class="bi bi-hourglass-split"></i> {{ t('pending') }}
+                            </span>
+                        {% elif order.status == 'Accepted' %}
+                            <span class="badge bg-light text-primary fs-6">
+                                <i class="bi bi-check-circle"></i> {{ t('accepted') }}
+                            </span>
+                        {% elif order.status == 'Rejected' %}
+                            <span class="badge bg-light text-danger fs-6">
+                                <i class="bi bi-x-circle"></i> {{ t('rejected') }}
+                            </span>
+                        {% elif order.status == 'Delivered' %}
+                            <span class="badge bg-light text-success fs-6">
+                                <i class="bi bi-check2-all"></i> {{ t('delivered') }}
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Order Details -->
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-3">
+                                <i class="bi bi-basket"></i> {{ t('order_details') }}
+                            </h6>
+                            <div class="order-item-box p-3 bg-light rounded mb-3">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span><strong>{{ t('crop') }}:</strong></span>
+                                    <span class="crop-name">🌾 {{ order.crop_name }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span><strong>{{ t('quantity') }}:</strong></span>
+                                    <span>{{ order.quantity }} kg</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span><strong>{{ t('price_per_kg') }}:</strong></span>
+                                    <span>₹{{ order.price_per_kg }}/kg</span>
+                                </div>
+                                <hr>
+                                <div class="d-flex justify-content-between">
+                                    <strong>{{ t('total') }}:</strong>
+                                    <strong class="text-primary fs-5">₹{{ order.total_amount }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Farmer Details -->
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-3">
+                                <i class="bi bi-person-badge"></i> {{ t('farmer_details') }}
+                            </h6>
+                            <div class="farmer-box p-3 border border-success rounded">
+                                <div class="mb-2">
+                                    <i class="bi bi-person-circle text-success fs-4"></i>
+                                    <strong class="ms-2">{{ order.farmer_name }}</strong>
+                                </div>
+                                <div class="mb-2">
+                                    <i class="bi bi-telephone text-primary"></i>
+                                    <span class="ms-2">{{ order.farmer_phone }}</span>
+                                </div>
+                                <div class="mb-0">
+                                    <i class="bi bi-geo-alt text-danger"></i>
+                                    <span class="ms-2">
+                                        {{ order.farmer_address }}<br>
+                                        <small class="ms-4">{{ order.farmer_district }}, {{ order.farmer_state }} - {{ order.farmer_pincode }}</small>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Order Status Timeline -->
+                    <div class="mt-4">
+                        <h6 class="text-muted mb-3">
+                            <i class="bi bi-clock-history"></i> {{ t('order_status') }}
+                        </h6>
+                        <div class="order-timeline">
+                            <div class="timeline-item completed">
+                                <div class="timeline-icon bg-success">
+                                    <i class="bi bi-cart-check"></i>
+                                </div>
+                                <div class="timeline-content">
+                                    <strong>{{ t('order_placed') }}</strong>
+                                    <small class="text-muted">{{ order.order_date }}</small>
+                                </div>
+                            </div>
+                            
+                            <div class="timeline-item {% if order.status in ['Accepted', 'Delivered'] %}completed{% elif order.status == 'Rejected' %}rejected{% elif order.status == 'Pending' %}active{% endif %}">
+                                <div class="timeline-icon 
+                                    {% if order.status == 'Rejected' %}bg-danger
+                                    {% elif order.status in ['Accepted', 'Delivered'] %}bg-success
+                                    {% else %}bg-warning{% endif %}">
+                                    {% if order.status == 'Rejected' %}
+                                        <i class="bi bi-x"></i>
+                                    {% else %}
+                                        <i class="bi bi-person-check"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="timeline-content">
+                                    {% if order.status == 'Rejected' %}
+                                        <strong class="text-danger">{{ t('order_rejected') }}</strong>
+                                        <small class="text-muted">{{ t('farmer_rejected_order') }}</small>
+                                    {% elif order.status in ['Accepted', 'Delivered'] %}
+                                        <strong class="text-success">{{ t('order_accepted') }}</strong>
+                                        <small class="text-muted">{{ t('farmer_accepted_order') }}</small>
+                                    {% else %}
+                                        <strong>{{ t('waiting_confirmation') }}</strong>
+                                        <small class="text-muted">{{ t('farmer_will_confirm') }}</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            {% if order.status != 'Rejected' %}
+                            <div class="timeline-item {% if order.status == 'Delivered' %}completed{% endif %}">
+                                <div class="timeline-icon {% if order.status == 'Delivered' %}bg-success{% else %}bg-secondary{% endif %}">
+                                    <i class="bi bi-truck"></i>
+                                </div>
+                                <div class="timeline-content">
+                                    <strong {% if order.status == 'Delivered' %}class="text-success"{% endif %}>
+                                        {{ t('delivered') }}
+                                    </strong>
+                                    {% if order.status == 'Delivered' %}
+                                        <small class="text-muted">{{ t('order_delivered_success') }}</small>
+                                    {% else %}
+                                        <small class="text-muted">{{ t('pending_delivery') }}</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    {% else %}
+    <!-- No Orders -->
+    <div class="text-center py-5">
+        <div class="empty-orders-icon mb-4">
+            <i class="bi bi-box-seam" style="font-size: 5rem; color: #ccc;"></i>
+        </div>
+        <h3 class="text-muted">{{ t('no orders') }}</h3>
+        <p class="text-muted mb-4">{{ t('You have no orders yet. Start shopping to place your first order!
+') }}</p>
+        <a href="{{ url_for('marketplace') }}" class="btn btn-primary-custom btn-lg">
+            <i class="bi bi-shop"></i> {{ t('browse marketplace') }}
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.order-card {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.order-card:hover {
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+.crop-name {
+    font-weight: 600;
+    color: #28a745;
+}
+
+.farmer-box {
+    background: linear-gradient(135deg, #f8fff8, #ffffff);
+}
+
+/* Timeline Styles */
+.order-timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.order-timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #dee2e6;
+}
+
+.timeline-item {
+    position: relative;
+    padding-bottom: 20px;
+    display: flex;
+    align-items: flex-start;
+}
+
+.timeline-icon {
+    position: absolute;
+    left: -30px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.8rem;
+    z-index: 1;
+}
+
+.timeline-content {
+    margin-left: 15px;
+}
+
+.timeline-content strong {
+    display: block;
+}
+
+.timeline-content small {
+    display: block;
+    margin-top: 2px;
+}
+
+.timeline-item.completed .timeline-icon {
+    background-color: #28a745;
+}
+
+.timeline-item.active .timeline-icon {
+    animation: pulse 1.5s infinite;
+}
+
+.timeline-item.rejected .timeline-icon {
+    background-color: #dc3545;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(255, 193, 7, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0); }
+}
+</style>
+{% endblock %}

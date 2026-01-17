@@ -1,0 +1,273 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ t('app_name') }} - {{ t('tagline') }}{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <h1 class="fade-in">{{ t('Empowering Farmers Through Digital Trade') }}</h1>
+        <p class="fade-in">{{ t('Buy and sell fresh produce directly with fair pricing and trusted service.') }}</p>
+        <div class="mt-4">
+            {% if session.get('customer_id') %}
+
+            
+           <a href="{{ url_for('marketplace') }}" class="btn btn-secondary-custom btn-lg me-3">
+                <i class="bi bi-shop"></i> {{ t('browse_marketplace') }}
+            </a>
+            <a href="{{ url_for('customer_orders') }}" class="btn btn-outline-light btn-lg">
+                <i class="bi bi-box-seam"></i> {{ t('my_orders') }}
+            </a>
+        
+            {% elif session.get('farmer_id') %}
+            <a href="{{ url_for('farmer_dashboard') }}" class="btn btn-secondary-custom btn-lg me-3">
+                <i class="bi bi-speedometer2"></i> {{ t('dashboard') }}
+            </a>
+            <a href="{{ url_for('marketplace') }}" class="btn btn-outline-light btn-lg">
+                <i class="bi bi-shop"></i> {{ t('view_marketplace') }}
+            </a>
+            {% else %}
+            <a href="{{ url_for('customer_register') }}" class="btn btn-secondary-custom btn-lg me-3">
+                <i class="bi bi-person-plus"></i> {{ t('customer register') }}
+            </a>
+            <a href="{{ url_for('farmer_register') }}" class="btn btn-secondary-custom btn-lg me-3">
+                <i class="bi bi-person-badge"></i> {{ t('farmer register') }}
+            </a>
+            <a href="{{ url_for('marketplace') }}" class="btn btn-secondary-custom btn-lg me-3">
+                <i class="bi bi-shop"></i> {{ t('browse marketplace') }}
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="section-title text-center w-100 mb-5">{{ t('why choose') }}</h2>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card feature-card h-100">
+                    <div class="icon">🚫</div>
+                    <h4>{{ t('no_middlemen') }}</h4>
+                    <p class="text-muted">{{ t('No brokers, no extra charges — direct connections.
+') }}</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card feature-card h-100">
+                    <div class="icon">📊</div>
+                    <h4>{{ t('msp_transparency') }}</h4>
+                    <p class="text-muted">{{ t(' Compare market prices with government MSP for transparency.') }}</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card feature-card h-100">
+                    <div class="icon">💰</div>
+                    <h4>{{ t('fair_pricing') }}</h4>
+                    <p class="text-muted">{{ t('Ensuring fair market prices for both farmers and buyers.
+') }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="py-5 bg-light-green">
+    <div class="container">
+        <h2 class="section-title text-center w-100 mb-5">How It Works</h2>
+        
+        <div class="row g-4">
+            <!-- For Farmers -->
+            <div class="col-lg-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <i class="bi bi-person-badge"></i> For Farmers
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li class="mb-3">
+                                <span class="badge bg-success rounded-circle me-2">1</span>
+                                Register/Login to your account
+                            </li>
+                            <li class="mb-3">
+                                <span class="badge bg-success rounded-circle me-2">2</span>
+                                List your crops with quantity and price
+                            </li>
+                            <li class="mb-3">
+                                <span class="badge bg-success rounded-circle me-2">3</span>
+                                See instant MSP comparison
+                            </li>
+                            <li class="mb-3">
+                                <span class="badge bg-success rounded-circle me-2">4</span>
+                                Receive orders directly from consumers
+                            </li>
+                        </ul>
+                        <a href="{{ url_for('farmer_register') }}" class="btn btn-primary-custom">
+                            <i class="bi bi-person-plus"></i> Register as Farmer
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- For Consumers -->
+            <div class="col-lg-6">
+                <div class="card h-100">
+                    <div class="card-header bg-warning text-dark">
+                        <i class="bi bi-cart4"></i> For Consumers
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li class="mb-3">
+                                <span class="badge bg-warning text-dark rounded-circle me-2">1</span>
+                                Browse the marketplace
+                            </li>
+                            <li class="mb-3">
+                                <span class="badge bg-warning text-dark rounded-circle me-2">2</span>
+                                Filter by crop, location, or price
+                            </li>
+                            <li class="mb-3">
+                                <span class="badge bg-warning text-dark rounded-circle me-2">3</span>
+                                Check MSP status for fair pricing
+                            </li>
+                            <li class="mb-3">
+                                <span class="badge bg-warning text-dark rounded-circle me-2">4</span>
+                                Place orders directly with farmers
+                            </li>
+                        </ul>
+                        <a href="{{ url_for('marketplace') }}" class="btn btn-secondary-custom">
+                            <i class="bi bi-shop"></i> Visit Marketplace
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-4 text-center">
+            <div class="col-md-3 col-6">
+                <div class="stat-card">
+                    <div class="stat-number">17+</div>
+                    <div class="stat-label">Crops with MSP</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stat-card">
+                    <div class="stat-number">6+</div>
+                    <div class="stat-label">Govt Schemes</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stat-card">
+                    <div class="stat-number">100%</div>
+                    <div class="stat-label">Transparent</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stat-card">
+                    <div class="stat-number">0%</div>
+                    <div class="stat-label">Middlemen</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- MSP Awareness Section -->
+<section class="py-5 bg-light-green">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h2 class="section-title">What is MSP?</h2>
+                <p class="lead">
+                    <strong>Minimum Support Price (MSP)</strong> is the rate at which the government purchases crops from farmers, 
+                    regardless of market prices.
+                </p>
+                <p>
+                    At KisanBazaar, we show MSP comparison for every crop listing so that:
+                </p>
+                <ul>
+                    <li>Farmers know if their price is fair</li>
+                    <li>Consumers can verify they're not overpaying</li>
+                    <li>Complete transparency in every transaction</li>
+                </ul>
+                <a href="{{ url_for('msp_info') }}" class="btn btn-primary-custom">
+                    <i class="bi bi-info-circle"></i> View MSP Rates
+                </a>
+            </div>
+            <div class="col-lg-6 text-center">
+                <div class="card p-4">
+                    <h5 class="text-primary-green mb-3">MSP Example</h5>
+                    <table class="table table-borderless">
+                        <tr>
+                            <td><strong>Rice</strong></td>
+                            <td>₹2,183/quintal</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Wheat</strong></td>
+                            <td>₹2,275/quintal</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cotton</strong></td>
+                            <td>₹6,620/quintal</td>
+                        </tr>
+                    </table>
+                    <small class="text-muted">*MSP rates for 2024-25</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Government Schemes CTA -->
+<section class="py-5">
+    <div class="container text-center">
+        <h2 class="section-title">Know Your Government Schemes</h2>
+        <p class="lead text-muted mb-4">
+            Many farmers miss out on benefits they're entitled to. We help you stay informed about all major agricultural schemes.
+        </p>
+        <div class="row g-3 justify-content-center">
+            <div class="col-auto">
+                <span class="badge bg-success p-3 fs-6">PM-KISAN</span>
+            </div>
+            <div class="col-auto">
+                <span class="badge bg-warning text-dark p-3 fs-6">PMFBY</span>
+            </div>
+            <div class="col-auto">
+                <span class="badge bg-info p-3 fs-6">Soil Health Card</span>
+            </div>
+            <div class="col-auto">
+                <span class="badge bg-primary p-3 fs-6">Kisan Credit Card</span>
+            </div>
+            <div class="col-auto">
+                <span class="badge bg-secondary p-3 fs-6">e-NAM</span>
+            </div>
+        </div>
+        <a href="{{ url_for('schemes') }}" class="btn btn-secondary-custom btn-lg mt-4">
+            <i class="bi bi-bank"></i> Explore All Schemes
+        </a>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-5" style="background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%); color: white;">
+    <div class="container text-center">
+        <h2 class="mb-3">Ready to Join KisanBazaar?</h2>
+        <p class="lead mb-4">Start selling your crops directly to consumers today!</p>
+        <a href="{{ url_for('farmer_register') }}" class="btn btn-light btn-lg me-2">
+            <i class="bi bi-person-plus"></i> Register as Farmer
+        </a>
+        <a href="{{ url_for('marketplace') }}" class="btn btn-outline-light btn-lg">
+            <i class="bi bi-shop"></i> Browse Marketplace
+        </a>
+    </div>
+</section>
+{% endblock %}

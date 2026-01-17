@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+
+{% block title %}Order {{ crop.crop_name }} - KisanBazaar{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{{ url_for('marketplace') }}">Marketplace</a>
+                    </li>
+                    <li class="breadcrumb-item active">Order {{ crop.crop_name }}</li>
+                </ol>
+            </nav>
+
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-cart-check"></i> Place Your Order
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Crop Details -->
+                        <div class="col-md-6 mb-4 mb-md-0">
+                            <div class="bg-light p-4 rounded">
+                                <h4 class="text-primary-green mb-3">
+                                    🌾 {{ crop.crop_name }}
+                                </h4>
+                                
+                                <table class="table table-borderless mb-0">
+                                    <tr>
+                                        <td><i class="bi bi-person text-primary"></i> Farmer:</td>
+                                        <td><strong>{{ crop.farmer_name }}</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td><i class="bi bi-geo-alt text-danger"></i> Location:</td>
+                                        <td>{{ crop.location }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><i class="bi bi-box text-success"></i> Available:</td>
+                                        <td><strong>{{ crop.quantity }} kg</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td><i class="bi bi-currency-rupee text-warning"></i> Price:</td>
+                                        <td>
+                                            <span class="fs-4 text-primary-green fw-bold">
+                                                ₹{{ crop.price }}/kg
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% if crop.msp_price %}
+                                    <tr>
+                                        <td><i class="bi bi-bank text-info"></i> MSP:</td>
+                                        <td>₹{{ crop.msp_price }}/kg</td>
+                                    </tr>
+                                    <tr>
+                                        <td><i class="bi bi-check2-circle"></i> Status:</td>
+                                        <td>
+                                            {% if crop.msp_status == 'Above MSP' %}
+                                            <span class="msp-badge above">
+                                                <i class="bi bi-check-circle"></i> Above MSP
+                                            </span>
+                                            {% else %}
+                                            <span class="msp-badge below">
+                                                <i class="bi bi-exclamation-triangle"></i> Below MSP
+                                            </span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endif %}
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Order Form -->
+                        <div class="col-md-6">
+                            <h5 class="mb-3">Enter Order Details</h5>
+                            
+                            <form method="POST" action="{{ url_for('order_crop', crop_id=crop.id) }}">
+                                <div class="mb-3">
+                                    <label for="quantity" class="form-label">
+                                        Quantity (kg)
+                                    </label>
+                                    <input type="number" class="form-control form-control-lg" 
+                                           id="quantity" name="quantity" 
+                                           min="1" max="{{ crop.quantity }}" 
+                                           placeholder="Enter quantity" required>
+                                    <small class="text-muted">
+                                        Maximum available: {{ crop.quantity }} kg
+                                    </small>
+                                </div>
+
+                                <!-- Price Calculator -->
+                                <div class="card bg-light mb-4">
+                                    <div class="card-body">
+                                        <h6 class="mb-3">Order Summary</h6>
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span>Price per kg:</span>
+                                            <span>₹{{ crop.price }}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span>Quantity:</span>
+                                            <span id="display_qty">0 kg</span>
+                                        </div>
+                                        <hr>
+                                        <div class="d-flex justify-content-between">
+                                            <strong>Total Amount:</strong>
+                                            <strong class="text-primary-green fs-5" id="total_amount">₹0</strong>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-secondary-custom w-100 btn-lg">
+                                    <i class="bi bi-bag-check"></i> Place Order (Demo)
+                                </button>
+
+                                <p class="text-center text-muted mt-3 small">
+                                    <i class="bi bi-info-circle"></i>
+                                    This is a demo order. No actual payment will be processed.
+                                </p>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Farmer -->
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h6 class="mb-3">
+                        <i class="bi bi-telephone"></i> Contact Farmer
+                    </h6>
+                    <p class="mb-2">
+                        <strong>{{ crop.farmer_name }}</strong>
+                    </p>
+                    {% if crop.farmer_phone %}
+                    <p class="mb-0">
+                        <i class="bi bi-phone"></i> {{ crop.farmer_phone }}
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <a href="{{ url_for('marketplace') }}" class="btn btn-outline-custom">
+                    <i class="bi bi-arrow-left"></i> Back to Marketplace
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+    const pricePerKg = {{ crop.price }};
+    const maxQty = {{ crop.quantity }};
+
+    document.getElementById('quantity').addEventListener('input', function() {
+        let qty = parseInt(this.value) || 0;
+        if (qty > maxQty) {
+            qty = maxQty;
+            this.value = maxQty;
+        }
+        
+        document.getElementById('display_qty').textContent = qty + ' kg';
+        document.getElementById('total_amount').textContent = '₹' + (qty * pricePerKg).toLocaleString('en-IN');
+    });
+</script>
+{% endblock %}
+{% endblock %}

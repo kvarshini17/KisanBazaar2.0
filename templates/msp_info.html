@@ -1,0 +1,222 @@
+{% extends 'base.html' %}
+
+{% block title %}MSP Rates - KisanBazaar{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Page Header -->
+    <div class="text-center mb-5">
+        <h2 class="section-title">📊 Minimum Support Price (MSP) Rates</h2>
+        <p class="text-muted">Government declared MSP rates for 2024-25</p>
+    </div>
+
+    <!-- MSP Info Card -->
+    <div class="alert alert-success mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h5 class="mb-2">
+                    <i class="bi bi-info-circle-fill"></i> What is MSP?
+                </h5>
+                <p class="mb-0">
+                    <strong>Minimum Support Price (MSP)</strong> is the rate at which the government purchases 
+                    crops from farmers, regardless of market conditions. It ensures farmers get a minimum 
+                    guaranteed price for their produce.
+                </p>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <a href="{{ url_for('farmer_register') }}" class="btn btn-success">
+                    <i class="bi bi-person-plus"></i> Sell Your Crops
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- MSP Table -->
+    <div class="card">
+        <div class="card-header">
+            <i class="bi bi-table"></i> Current MSP Rates (2024-25)
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-success">
+                        <tr>
+                            <th style="width: 50px;">#</th>
+                            <th>Crop Name</th>
+                            <th>Category</th>
+                            <th>MSP (₹/quintal)</th>
+                            <th>MSP (₹/kg)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for msp in msp_list %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>
+                                <strong>
+                                    {% if msp.crop_name in ['Rice', 'Wheat', 'Maize', 'Jowar', 'Bajra', 'Ragi'] %}
+                                    🌾
+                                    {% elif msp.crop_name in ['Tur (Arhar)', 'Moong', 'Urad'] %}
+                                    🫘
+                                    {% elif msp.crop_name in ['Groundnut', 'Soyabean', 'Sunflower'] %}
+                                    🥜
+                                    {% elif msp.crop_name == 'Cotton' %}
+                                    🧶
+                                    {% elif msp.crop_name == 'Sugarcane' %}
+                                    🎋
+                                    {% else %}
+                                    🥬
+                                    {% endif %}
+                                    {{ msp.crop_name }}
+                                </strong>
+                            </td>
+                            <td>
+                                {% if msp.crop_name in ['Rice', 'Wheat', 'Maize', 'Jowar', 'Bajra', 'Ragi'] %}
+                                <span class="badge bg-success">Cereals</span>
+                                {% elif msp.crop_name in ['Tur (Arhar)', 'Moong', 'Urad'] %}
+                                <span class="badge bg-warning text-dark">Pulses</span>
+                                {% elif msp.crop_name in ['Groundnut', 'Soyabean', 'Sunflower'] %}
+                                <span class="badge bg-info">Oilseeds</span>
+                                {% elif msp.crop_name == 'Cotton' %}
+                                <span class="badge bg-secondary">Commercial</span>
+                                {% elif msp.crop_name == 'Sugarcane' %}
+                                <span class="badge bg-primary">Cash Crop</span>
+                                {% else %}
+                                <span class="badge bg-dark">Vegetables</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <strong class="text-primary-green">₹{{ (msp.msp_price * 100)|int }}</strong>
+                            </td>
+                            <td>₹{{ msp.msp_price }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="card mt-4">
+        <div class="card-body">
+            <h6 class="mb-3"><i class="bi bi-tags"></i> Crop Categories</h6>
+            <div class="row">
+                <div class="col-md-4 col-6 mb-2">
+                    <span class="badge bg-success me-2">Cereals</span>
+                    Rice, Wheat, Maize, etc.
+                </div>
+                <div class="col-md-4 col-6 mb-2">
+                    <span class="badge bg-warning text-dark me-2">Pulses</span>
+                    Tur, Moong, Urad
+                </div>
+                <div class="col-md-4 col-6 mb-2">
+                    <span class="badge bg-info me-2">Oilseeds</span>
+                    Groundnut, Soyabean
+                </div>
+                <div class="col-md-4 col-6 mb-2">
+                    <span class="badge bg-secondary me-2">Commercial</span>
+                    Cotton
+                </div>
+                <div class="col-md-4 col-6 mb-2">
+                    <span class="badge bg-primary me-2">Cash Crop</span>
+                    Sugarcane
+                </div>
+                <div class="col-md-4 col-6 mb-2">
+                    <span class="badge bg-dark me-2">Vegetables</span>
+                    Potato, Onion, Tomato
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MSP Comparison Tool -->
+    <div class="card mt-4">
+        <div class="card-header bg-warning text-dark">
+            <i class="bi bi-calculator"></i> Quick MSP Comparison
+        </div>
+        <div class="card-body">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label for="crop_select" class="form-label">Select Crop</label>
+                    <select class="form-select" id="crop_select">
+                        <option value="">Choose a crop</option>
+                        {% for msp in msp_list %}
+                        <option value="{{ msp.msp_price }}">{{ msp.crop_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="your_price" class="form-label">Your Price (₹/kg)</label>
+                    <input type="number" class="form-control" id="your_price" placeholder="Enter your price">
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-secondary-custom w-100" onclick="compareMSP()">
+                        <i class="bi bi-calculator"></i> Compare
+                    </button>
+                </div>
+            </div>
+            
+            <div id="comparison_result" class="mt-4" style="display: none;">
+                <!-- Result will be shown here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Note -->
+    <div class="alert alert-info mt-4">
+        <i class="bi bi-info-circle"></i>
+        <strong>Note:</strong> MSP rates are declared by the Government of India and may vary by season. 
+        The rates shown are for reference purposes. For official rates, please visit 
+        <a href="https://desagri.gov.in/notifications/latest-minimum-support-price-msp-statement-minimum-support-price-msp-as-on-01-10-2025/"
+         target="_blank">desagri.gov.in</a>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+    function compareMSP() {
+        const mspPrice = parseFloat(document.getElementById('crop_select').value);
+        const yourPrice = parseFloat(document.getElementById('your_price').value);
+        const resultDiv = document.getElementById('comparison_result');
+        
+        if (!mspPrice || !yourPrice) {
+            alert('Please select a crop and enter your price');
+            return;
+        }
+        
+        let html = '';
+        if (yourPrice >= mspPrice) {
+            const diff = yourPrice - mspPrice;
+            const percent = ((diff / mspPrice) * 100).toFixed(1);
+            html = `
+                <div class="alert alert-success">
+                    <h5><i class="bi bi-check-circle-fill"></i> Above MSP ✓</h5>
+                    <p class="mb-0">
+                        Your price <strong>₹${yourPrice}/kg</strong> is 
+                        <strong>₹${diff.toFixed(2)}</strong> (${percent}%) above MSP (₹${mspPrice}/kg).
+                        <br>This is a fair price!
+                    </p>
+                </div>
+            `;
+        } else {
+            const diff = mspPrice - yourPrice;
+            const percent = ((diff / mspPrice) * 100).toFixed(1);
+            html = `
+                <div class="alert alert-danger">
+                    <h5><i class="bi bi-exclamation-triangle-fill"></i> Below MSP ⚠️</h5>
+                    <p class="mb-0">
+                        Your price <strong>₹${yourPrice}/kg</strong> is 
+                        <strong>₹${diff.toFixed(2)}</strong> (${percent}%) below MSP (₹${mspPrice}/kg).
+                        <br>Consider increasing your price to get fair value!
+                    </p>
+                </div>
+            `;
+        }
+        
+        resultDiv.innerHTML = html;
+        resultDiv.style.display = 'block';
+    }
+</script>
+{% endblock %}
+{% endblock %}

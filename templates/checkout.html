@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t('checkout') }} - {{ t('app_name') }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4">
+        <i class="bi bi-credit-card text-primary"></i> {{ t('checkout') }}
+    </h2>
+    
+    <div class="row">
+        <!-- Delivery Details -->
+        <div class="col-lg-7">
+            <form method="POST" action="{{ url_for('checkout') }}">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="bi bi-truck"></i> {{ t('delivery_details') }}
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="delivery_address" class="form-label">
+                                <i class="bi bi-house"></i> {{ t('delivery_address') }}
+                            </label>
+                            <textarea class="form-control" id="delivery_address" name="delivery_address" 
+                                      rows="3" required>{{ customer.address }}</textarea>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="city" class="form-label">
+                                    <i class="bi bi-building"></i> {{ t('city') }}
+                                </label>
+                                <input type="text" class="form-control" id="city" 
+                                       value="{{ customer.city }}" readonly>
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="state" class="form-label">
+                                    <i class="bi bi-geo-alt"></i> {{ t('state') }}
+                                </label>
+                                <input type="text" class="form-control" id="state" 
+                                       value="{{ customer.state }}" readonly>
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="pincode" class="form-label">
+                                    <i class="bi bi-mailbox"></i> {{ t('pincode') }}
+                                </label>
+                                <input type="text" class="form-control" id="pincode" 
+                                       value="{{ customer.pincode }}" readonly>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">
+                                <i class="bi bi-telephone"></i> {{ t('contact_phone') }}
+                            </label>
+                            <input type="tel" class="form-control" id="phone" name="phone" 
+                                   value="{{ customer.phone }}" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Order Items Preview -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">
+                            <i class="bi bi-basket"></i> {{ t('order_items') }}
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>{{ t('crop') }}</th>
+                                        <th>{{ t('farmer') }}</th>
+                                        <th>{{ t('quantity') }}</th>
+                                        <th>{{ t('price') }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in cart_items %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ item.crop_name }}</strong>
+                                        </td>
+                                        <td>
+                                            <div>
+                                                <i class="bi bi-person-badge text-success"></i>
+                                                {{ item.farmer_name }}
+                                            </div>
+                                            <small class="text-muted">
+                                                <i class="bi bi-geo-alt"></i>
+                                                {{ item.district }}, {{ item.state }}
+                                            </small>
+                                        </td>
+                                        <td>{{ item.quantity }} kg</td>
+                                        <td>
+                                            <strong class="text-primary">
+                                                ₹{{ "%.2f"|format(item.price_per_kg * item.quantity) }}
+                                            </strong>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Payment Method -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-warning">
+                        <h5 class="mb-0">
+                            <i class="bi bi-wallet2"></i> {{ t('payment_method') }}
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="payment_method" 
+                                   id="cod" value="cod" checked>
+                            <label class="form-check-label" for="cod">
+                                <i class="bi bi-cash-coin text-success"></i>
+                                {{ t('cash_on_delivery') }}
+                            </label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="payment_method" 
+                                   id="upi" value="upi">
+                            <label class="form-check-label" for="upi">
+                                <i class="bi bi-phone text-primary"></i>
+                                {{ t('upi_payment') }}
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="payment_method" 
+                                   id="bank" value="bank">
+                            <label class="form-check-label" for="bank">
+                                <i class="bi bi-bank text-info"></i>
+                                {{ t('bank_transfer') }}
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary-custom btn-lg w-100">
+                    <i class="bi bi-check-circle"></i> {{ t('place_order') }}
+                </button>
+            </form>
+        </div>
+        
+        <!-- Order Summary -->
+        <div class="col-lg-5">
+            <div class="card shadow-sm sticky-top" style="top: 20px;">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-receipt"></i> {{ t('order_summary') }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% set total = namespace(value=0, qty=0) %}
+                    {% for item in cart_items %}
+                        {% set total.value = total.value + (item.price_per_kg * item.quantity) %}
+                        {% set total.qty = total.qty + item.quantity %}
+                    {% endfor %}
+                    
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>{{ t('total_items') }}:</span>
+                        <span>{{ cart_items|length }} {{ t('items') }}</span>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>{{ t('total_quantity') }}:</span>
+                        <span>{{ total.qty }} kg</span>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>{{ t('subtotal') }}:</span>
+                        <span>₹{{ "%.2f"|format(total.value) }}</span>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>{{ t('delivery_charges') }}:</span>
+                        <span class="text-success">{{ t('free') }}</span>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="d-flex justify-content-between mb-3">
+                        <strong class="fs-5">{{ t('total') }}:</strong>
+                        <strong class="text-primary fs-4">₹{{ "%.2f"|format(total.value) }}</strong>
+                    </div>
+                    
+                    <div class="alert alert-info mb-0">
+                        <i class="bi bi-info-circle"></i>
+                        <small>{{ t('order_note') }}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

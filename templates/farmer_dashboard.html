@@ -1,0 +1,403 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ t('dashboard') }} - {{ t('app_name') }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2>👋 {{ t('welcome') }}, {{ session.farmer_name }}!</h2>
+                <p class="mb-0 opacity-75">
+                    <i class="bi bi-geo-alt"></i> {{ session.farmer_location }} | 
+                    {{ t('manage_crops_orders') }}
+                </p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <a href="{{ url_for('marketplace') }}" class="btn btn-outline-light">
+                    <i class="bi bi-shop"></i> {{ t('view_marketplace') }}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-number">{{ crops|length }}</div>
+                <div class="stat-label">{{ t('listed_crops') }}</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-number text-warning">{{ pending_orders|length }}</div>
+                <div class="stat-label">{{ t('pending_orders') }}</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-number text-primary">{{ accepted_orders|length }}</div>
+                <div class="stat-label">{{ t('accepted_orders') }}</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-number text-success">
+                    {{ crops|selectattr('msp_status', 'equalto', 'Above MSP')|list|length }}
+                </div>
+                <div class="stat-label">{{ t('above_msp_listings') }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Orders Section -->
+    {% if pending_orders %}
+    <div class="card mb-4 border-warning">
+        <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0">
+                <i class="bi bi-bell-fill"></i> {{ t('new_orders') }} ({{ pending_orders|length }})
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                {% for order in pending_orders %}
+                <div class="col-md-6">
+                    <div class="card h-100 border-warning">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between mb-2">
+                                <h6 class="text-primary">{{ t('order') }} #{{ order.id }}</h6>
+                                <small class="text-muted">{{ order.order_date }}</small>
+                            </div>
+                            
+                            <div class="order-details mb-3">
+                                <p class="mb-1">
+                                    <i class="bi bi-basket text-success"></i>
+                                    <strong>{{ order.crop_name }}</strong> - {{ order.quantity }} kg
+                                </p>
+                                <p class="mb-1">
+                                    <i class="bi bi-currency-rupee text-primary"></i>
+                                    {{ t('total') }}: <strong>₹{{ order.total_amount }}</strong>
+                                </p>
+                            </div>
+                            
+                            <div class="customer-info p-2 bg-light rounded mb-3">
+                                <small class="text-muted">{{ t('customer') }}:</small>
+                                <p class="mb-0">
+                                    <strong>{{ order.customer_name }}</strong><br>
+                                    <i class="bi bi-telephone"></i> {{ order.customer_phone }}<br>
+                                    <i class="bi bi-geo-alt"></i> {{ order.delivery_address }}
+                                </p>
+                            </div>
+                            
+                            <div class="d-flex gap-2">
+                                <form method="POST" action="{{ url_for('manage_order', order_id=order.id, action='accept') }}" class="flex-fill">
+                                    <button type="submit" class="btn btn-success w-100">
+                                        <i class="bi bi-check-circle"></i> {{ t('accept') }}
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ url_for('manage_order', order_id=order.id, action='reject') }}" class="flex-fill">
+                                    <button type="submit" class="btn btn-outline-danger w-100" 
+                                            onclick="return confirm('{{ t('confirm_reject') }}')">
+                                        <i class="bi bi-x-circle"></i> {{ t('reject') }}
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Accepted Orders Section -->
+    {% if accepted_orders %}
+    <div class="card mb-4 border-primary">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                <i class="bi bi-box-seam"></i> {{ t('orders_to_deliver') }} ({{ accepted_orders|length }})
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>{{ t('order_id') }}</th>
+                            <th>{{ t('crop') }}</th>
+                            <th>{{ t('quantity') }}</th>
+                            <th>{{ t('amount') }}</th>
+                            <th>{{ t('customer') }}</th>
+                            <th>{{ t('delivery_address') }}</th>
+                            <th>{{ t('action') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in accepted_orders %}
+                        <tr>
+                            <td><strong>#{{ order.id }}</strong></td>
+                            <td>{{ order.crop_name }}</td>
+                            <td>{{ order.quantity }} kg</td>
+                            <td><strong>₹{{ order.total_amount }}</strong></td>
+                            <td>
+                                {{ order.customer_name }}<br>
+                                <small class="text-muted">{{ order.customer_phone }}</small>
+                            </td>
+                            <td>
+                                <small>{{ order.delivery_address }}</small>
+                            </td>
+                            <td>
+                                <form method="POST" action="{{ url_for('deliver_order', order_id=order.id) }}">
+                                    <button type="submit" class="btn btn-success btn-sm">
+                                        <i class="bi bi-truck"></i> {{ t('mark_delivered') }}
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <!-- Add Crop Form -->
+        <div class="col-lg-5 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <i class="bi bi-plus-circle"></i> {{ t('add_new_crop') }}
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('add_crop') }}">
+                        <div class="mb-3">
+                            <label for="crop_name" class="form-label">{{ t('crop_name') }}</label>
+                            <select class="form-select" id="crop_name" name="crop_name" required>
+                                <option value="">{{ t('select_crop') }}</option>
+                                {% for msp in msp_list %}
+                                <option value="{{ msp.crop_name }}">
+                                    {{ msp.crop_name }} (MSP: ₹{{ msp.msp_price }}/kg)
+                                </option>
+                                {% endfor %}
+                                <option value="Other">{{ t('other_custom') }}</option>
+                            </select>
+                        </div>
+                        
+                        <div id="custom_crop_div" style="display: none;" class="mb-3">
+                            <label for="custom_crop" class="form-label">{{ t('custom_crop_name') }}</label>
+                            <input type="text" class="form-control" id="custom_crop" 
+                                   placeholder="{{ t('enter_crop_name') }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="quantity" class="form-label">{{ t('quantity_kg') }}</label>
+                            <input type="number" class="form-control" id="quantity" name="quantity" 
+                                   placeholder="{{ t('enter_quantity') }}" min="1" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="price" class="form-label">{{ t('price_per_kg') }}</label>
+                            <input type="number" class="form-control" id="price" name="price" 
+                                   placeholder="{{ t('enter_price') }}" min="1" required>
+                        </div>
+                        
+                        <!-- MSP Comparison Preview -->
+                        <div id="msp_preview" class="alert alert-info" style="display: none;">
+                            <small>
+                                <strong>MSP {{ t('for') }} <span id="preview_crop"></span>:</strong> 
+                                ₹<span id="preview_msp"></span>/kg<br>
+                                <span id="preview_status"></span>
+                            </small>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary-custom w-100">
+                            <i class="bi bi-plus-lg"></i> {{ t('add_crop') }}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- My Listed Crops -->
+        <div class="col-lg-7 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-list-ul"></i> {{ t('my_listed_crops') }}</span>
+                    <span class="badge bg-light text-dark">{{ crops|length }} {{ t('items') }}</span>
+                </div>
+                <div class="card-body">
+                    {% if crops %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>{{ t('crop') }}</th>
+                                    <th>{{ t('qty') }} (kg)</th>
+                                    <th>{{ t('your_price') }}</th>
+                                    <th>MSP</th>
+                                    <th>{{ t('status') }}</th>
+                                    <th>{{ t('action') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for crop in crops %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ crop.crop_name }}</strong>
+                                    </td>
+                                    <td>{{ crop.quantity }}</td>
+                                    <td><strong>₹{{ crop.price }}</strong></td>
+                                    <td>
+                                        {% if crop.msp_price %}
+                                        ₹{{ crop.msp_price }}
+                                        {% else %}
+                                        <span class="text-muted">N/A</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if crop.msp_status == 'Above MSP' %}
+                                        <span class="msp-badge above">
+                                            <i class="bi bi-check-circle"></i> {{ t('above_msp') }}
+                                        </span>
+                                        {% elif crop.msp_status == 'Below MSP' %}
+                                        <span class="msp-badge below">
+                                            <i class="bi bi-exclamation-triangle"></i> {{ t('below_msp') }}
+                                        </span>
+                                        {% else %}
+                                        <span class="msp-badge unavailable">
+                                            <i class="bi bi-question-circle"></i> N/A
+                                        </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('delete_crop', crop_id=crop.id) }}" 
+                                           class="btn btn-sm btn-outline-danger"
+                                           onclick="return confirm('{{ t('confirm_delete') }}')">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-inbox text-muted" style="font-size: 4rem;"></i>
+                        <p class="text-muted mt-3">{{ t('no_crops_listed') }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MSP Info Card -->
+    <div class="card mt-4">
+        <div class="card-header bg-warning text-dark">
+            <i class="bi bi-info-circle"></i> {{ t('msp_information') }}
+        </div>
+        <div class="card-body">
+            <p class="mb-2">
+                <strong>{{ t('what_is_msp') }}</strong> {{ t('msp_description') }}
+            </p>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="msp-badge above me-2">{{ t('above_msp') }}</span>
+                        <span>{{ t('price_is_fair') }}</span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="msp-badge below me-2">{{ t('below_msp') }}</span>
+                        <span>{{ t('consider_increasing') }}</span>
+                    </div>
+                </div>
+            </div>
+            <a href="{{ url_for('msp_info') }}" class="btn btn-sm btn-outline-primary mt-2">
+                <i class="bi bi-table"></i> {{ t('view_msp_rates') }}
+            </a>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+    // Store MSP data
+    const mspData = {
+        {% for msp in msp_list %}
+        '{{ msp.crop_name }}': {{ msp.msp_price }},
+        {% endfor %}
+    };
+
+    // Handle crop selection change
+    document.getElementById('crop_name').addEventListener('change', function() {
+        const customDiv = document.getElementById('custom_crop_div');
+        const mspPreview = document.getElementById('msp_preview');
+        const selectedCrop = this.value;
+        
+        if (selectedCrop === 'Other') {
+            customDiv.style.display = 'block';
+            mspPreview.style.display = 'none';
+        } else {
+            customDiv.style.display = 'none';
+            if (selectedCrop && mspData[selectedCrop]) {
+                document.getElementById('preview_crop').textContent = selectedCrop;
+                document.getElementById('preview_msp').textContent = mspData[selectedCrop];
+                mspPreview.style.display = 'block';
+                updateMspStatus();
+            } else {
+                mspPreview.style.display = 'none';
+            }
+        }
+    });
+
+    // Handle price change for MSP comparison
+    document.getElementById('price').addEventListener('input', updateMspStatus);
+
+    function updateMspStatus() {
+        const selectedCrop = document.getElementById('crop_name').value;
+        const price = parseInt(document.getElementById('price').value) || 0;
+        const statusSpan = document.getElementById('preview_status');
+        
+        if (selectedCrop && mspData[selectedCrop] && price > 0) {
+            const msp = mspData[selectedCrop];
+            if (price >= msp) {
+                statusSpan.innerHTML = '<span class="text-success"><i class="bi bi-check-circle"></i> {{ t("your_price") }} ₹' + price + ' {{ t("is_above_msp") }} ✓</span>';
+            } else {
+                statusSpan.innerHTML = '<span class="text-danger"><i class="bi bi-exclamation-triangle"></i> {{ t("your_price") }} ₹' + price + ' {{ t("is_below_msp") }} ⚠️</span>';
+            }
+        }
+    }
+
+    // Handle custom crop name
+    document.getElementById('custom_crop').addEventListener('input', function() {
+        if (document.getElementById('crop_name').value === 'Other' && this.value) {
+            document.getElementById('crop_name').setAttribute('data-custom', this.value);
+        }
+    });
+
+    // Override form submission to handle custom crop
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const cropSelect = document.getElementById('crop_name');
+        if (cropSelect.value === 'Other') {
+            const customCrop = document.getElementById('custom_crop').value;
+            if (customCrop) {
+                // Create hidden input for custom crop name
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'crop_name';
+                hiddenInput.value = customCrop;
+                this.appendChild(hiddenInput);
+                cropSelect.removeAttribute('name');
+            }
+        }
+    });
+</script>
+{% endblock %}
+{% endblock %}

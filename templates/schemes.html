@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+
+{% block title %}Government Schemes - KisanBazaar{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Page Header -->
+    <div class="text-center mb-5">
+        <h2 class="section-title">🏛️ Government Schemes for Farmers</h2>
+        <p class="text-muted">Know your benefits and eligibility for major agricultural schemes</p>
+    </div>
+
+    <!-- Schemes List -->
+    {% if schemes %}
+    <div class="row">
+        {% for scheme in schemes %}
+        <div class="col-12 mb-4">
+            <div class="scheme-card">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h4>
+                            {% if 'KISAN' in scheme.name %}🌾
+                            {% elif 'PMFBY' in scheme.name %}🛡️
+                            {% elif 'Soil' in scheme.name %}🧪
+                            {% elif 'Credit' in scheme.name %}💳
+                            {% elif 'NAM' in scheme.name %}💻
+                            {% elif 'Sinchai' in scheme.name %}💧
+                            {% else %}📋
+                            {% endif %}
+                            {{ scheme.name }}
+                        </h4>
+                        <p class="text-muted mb-3">{{ scheme.description }}</p>
+                        
+                        <div class="mb-2">
+                            <span class="badge-eligibility">
+                                <i class="bi bi-person-check"></i> 
+                                <strong>Eligibility:</strong> {{ scheme.eligibility }}
+                            </span>
+                        </div>
+                        
+                        <div>
+                            <span class="badge-benefit">
+                                <i class="bi bi-gift"></i> 
+                                <strong>Benefits:</strong> {{ scheme.benefits }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                        <a href="#" class="btn btn-outline-custom btn-sm" 
+                           onclick="alert('This would link to the official government portal in production.')">
+                            <i class="bi bi-box-arrow-up-right"></i> Learn More
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <i class="bi bi-inbox text-muted" style="font-size: 5rem;"></i>
+        <h4 class="mt-3 text-muted">No schemes information available</h4>
+    </div>
+    {% endif %}
+
+    <!-- How to Apply Section -->
+    <div class="card mt-5">
+        <div class="card-header">
+            <i class="bi bi-question-circle"></i> How to Apply?
+        </div>
+        <div class="card-body">
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="text-center">
+                        <div class="rounded-circle bg-success text-white d-inline-flex align-items-center justify-content-center" 
+                             style="width: 60px; height: 60px; font-size: 1.5rem;">1</div>
+                        <h6 class="mt-3">Visit Official Portal</h6>
+                        <p class="text-muted small">
+                            Go to the respective government website or Common Service Centre (CSC)
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="text-center">
+                        <div class="rounded-circle bg-success text-white d-inline-flex align-items-center justify-content-center" 
+                             style="width: 60px; height: 60px; font-size: 1.5rem;">2</div>
+                        <h6 class="mt-3">Submit Documents</h6>
+                        <p class="text-muted small">
+                            Keep Aadhaar, land records, and bank details ready
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="text-center">
+                        <div class="rounded-circle bg-success text-white d-inline-flex align-items-center justify-content-center" 
+                             style="width: 60px; height: 60px; font-size: 1.5rem;">3</div>
+                        <h6 class="mt-3">Track Application</h6>
+                        <p class="text-muted small">
+                            Use your registration number to track status
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Important Links -->
+    <div class="card mt-4">
+        <div class="card-header bg-warning text-dark">
+            <i class="bi bi-link-45deg"></i> Important Official Links
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="bi bi-globe text-primary"></i>
+
+                            <strong>PM-KISAN:</strong>
+                            <a href="https://pmkisan.gov.in/" target="_blank" rel="noopener noreferrer">
+        pmkisan.gov.in
+    </a>
+    </a>
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-globe text-primary"></i>
+                            <strong>PMFBY:</strong> 
+                            <a href="https://pmfby.gov.in/" target="_blank" rel="noopener noreferrer">
+        pmfby.gov.in
+    </a>
+                        </li>
+
+                        <li class="mb-2">
+                            <i class="bi bi-globe text-primary"></i>
+                            <strong>e-NAM:</strong>
+                            <a href="https://www.enam.gov.in/" target="_blank" rel="noopener noreferrer">
+                                enam.gov.in
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="bi bi-globe text-primary"></i>
+                            <strong>Soil Health Card:</strong> 
+                            <a href="https://www.soilhealth.dac.gov.in/soilhealth.dac.gov.in" target="_blank" rel="noopener noreferrer">
+                                soilhealth.dac.gov.in
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-globe text-primary"></i>
+                            <strong>Agriculture Portal:</strong> 
+                            <a href="https://agriwelfare.gov.in/agricoop.nic.in" target="_blank" rel="noopener noreferrer">
+                                agricoop.nic.in
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-globe text-primary"></i>
+                            <strong>Kisan Call Center:</strong> <a href="tel:18001801551">1800-180-1551</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

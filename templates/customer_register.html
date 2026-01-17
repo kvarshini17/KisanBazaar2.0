@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t('customer_register') }} - {{ t('app_name') }}{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="auth-card">
+                    <div class="auth-header">
+                        <div class="auth-icon">
+                            <i class="bi bi-person-plus"></i>
+                        </div>
+                        <h2>{{ t('customer register') }}</h2>
+                        <p class="text-muted">{{ t('create customer account') }}</p>
+                    </div>
+                    
+                    <form method="POST" action="{{ url_for('customer_register') }}">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="name" class="form-label">
+                                    <i class="bi bi-person"></i> {{ t('full name') }}
+                                </label>
+                                <input type="text" class="form-control" id="name" 
+                                       name="name" required placeholder="{{ t('enter name') }}">
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="phone" class="form-label">
+                                    <i class="bi bi-telephone"></i> {{ t('phone') }}
+                                </label>
+                                <input type="tel" class="form-control" id="phone" 
+                                       name="phone" required placeholder="{{ t('enter phone') }}">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="email" class="form-label">
+                                <i class="bi bi-envelope"></i> {{ t('email') }}
+                            </label>
+                            <input type="email" class="form-control" id="email" 
+                                   name="email" required placeholder="{{ t('enter email') }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="address" class="form-label">
+                                <i class="bi bi-house"></i> {{ t('address') }}
+                            </label>
+                            <textarea class="form-control" id="address" name="address" 
+                                      rows="2" required placeholder="{{ t('enter address') }}"></textarea>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="city" class="form-label">
+                                    <i class="bi bi-building"></i> {{ t('city') }}
+                                </label>
+                                <input type="text" class="form-control" id="city" 
+                                       name="city" required placeholder="{{ t('enter city') }}">
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="state" class="form-label">
+                                    <i class="bi bi-geo-alt"></i> {{ t('state') }}
+                                </label>
+                                <select class="form-select" id="state" name="state" required>
+                                    <option value="">{{ t('select_state') }}</option>
+                                    <option value="Andhra Pradesh">Andhra Pradesh</option>
+                                    <option value="Telangana">Telangana</option>
+                                    <option value="Karnataka">Karnataka</option>
+                                    <option value="Tamil Nadu">Tamil Nadu</option>
+                                    <option value="Maharashtra">Maharashtra</option>
+                                    <option value="Gujarat">Gujarat</option>
+                                    <option value="Rajasthan">Rajasthan</option>
+                                    <option value="Uttar Pradesh">Uttar Pradesh</option>
+                                    <option value="Madhya Pradesh">Madhya Pradesh</option>
+                                    <option value="Bihar">Bihar</option>
+                                    <option value="West Bengal">West Bengal</option>
+                                    <option value="Punjab">Punjab</option>
+                                    <option value="Haryana">Haryana</option>
+                                    <option value="Kerala">Kerala</option>
+                                    <option value="Odisha">Odisha</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="pincode" class="form-label">
+                                    <i class="bi bi-mailbox"></i> {{ t('pincode') }}
+                                </label>
+                                <input type="text" class="form-control" id="pincode" 
+                                       name="pincode" required placeholder="500001" pattern="[0-9]{6}">
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="password" class="form-label">
+                                    <i class="bi bi-lock"></i> {{ t('password') }}
+                                </label>
+                                <input type="password" class="form-control" id="password" 
+                                       name="password" required placeholder="{{ t('create_password') }}" minlength="6">
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="confirm_password" class="form-label">
+                                    <i class="bi bi-lock-fill"></i> {{ t('confirm password') }}
+                                </label>
+                                <input type="password" class="form-control" id="confirm_password" 
+                                       name="confirm_password" required placeholder="{{ t('confirm password') }}">
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary-custom w-100 btn-lg mb-3">
+                            <i class="bi bi-person-plus"></i> {{ t('register') }}
+                        </button>
+                        
+                        <div class="text-center mt-3">
+                            <p class="mb-0">{{ t('have account') }} 
+                                <a href="{{ url_for('customer_login') }}" class="text-primary">{{ t('login here') }}</a>
+                            </p>
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <div class="text-center">
+                            <p class="text-muted mb-2">{{ t('are you farmer') }}</p>
+                            <a href="{{ url_for('farmer_register') }}" class="btn btn-outline-success">
+                                <i class="bi bi-person-badge"></i> {{ t('farmer register') }}
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+document.querySelector('form').addEventListener('submit', function(e) {
+    var password = document.getElementById('password').value;
+    var confirmPassword = document.getElementById('confirm_password').value;
+    
+    if (password !== confirmPassword) {
+        e.preventDefault();
+        alert('{{ t("passwords_not_match") }}');
+    }
+});
+</script>
+{% endblock %}
+{% endblock %}

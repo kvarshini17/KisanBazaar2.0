@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t('cart') }} - {{ t('app_name') }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4">
+        <i class="bi bi-cart3 text-primary"></i> {{ t('your cart') }}
+    </h2>
+    
+    {% if cart_items %}
+    <div class="row">
+        <!-- Cart Items -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-basket"></i> {{ t('cart items') }} ({{ cart_items|length }})
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>{{ t('crop') }}</th>
+                                    <th>{{ t('farmer') }}</th>
+                                    <th>{{ t('location') }}</th>
+                                    <th>{{ t('price') }}</th>
+                                    <th>{{ t('quantity') }}</th>
+                                    <th>{{ t('subtotal') }}</th>
+                                    <th>{{ t('action') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in cart_items %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <span class="crop-emoji me-2">🌾</span>
+                                            <strong>{{ item.crop_name }}</strong>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <i class="bi bi-person-badge text-success"></i>
+                                        {{ item.farmer_name }}
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">
+                                            <i class="bi bi-geo-alt text-danger"></i>
+                                            {{ item.district }}, {{ item.state }}
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-success">
+                                            ₹{{ item.price_per_kg }}/kg
+                                        </span>
+                                    </td>
+                                    <td style="width: 140px;">
+                                        <form method="POST" action="{{ url_for('update_cart', cart_id=item.id) }}" class="d-flex">
+                                            <input type="number" name="quantity" value="{{ item.quantity }}" 
+                                                   min="1" max="{{ item.available_qty }}" 
+                                                   class="form-control form-control-sm" style="width: 70px;">
+                                            <button type="submit" class="btn btn-sm btn-outline-primary ms-1">
+                                                <i class="bi bi-arrow-repeat"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                    <td>
+                                        <strong class="text-primary">
+                                            ₹{{ "%.2f"|format(item.price_per_kg * item.quantity) }}
+                                        </strong>
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('remove_from_cart', cart_id=item.id) }}" 
+                                           class="btn btn-sm btn-outline-danger"
+                                           onclick="return confirm('{{ t('confirm remove') }}')">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Farmer Details -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-person-badge"></i> {{ t('farmer_details') }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% set farmers_seen = {} %}
+                    {% for item in cart_items %}
+                        {% if item.farmer_id not in farmers_seen %}
+                        <div class="farmer-info-card mb-3 p-3 border rounded {% if not loop.last %}border-bottom{% endif %}">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="text-success">
+                                        <i class="bi bi-person-circle"></i> {{ item.farmer_name }}
+                                    </h6>
+                                    <p class="mb-1">
+                                        <i class="bi bi-telephone text-primary"></i> 
+                                        {{ item.farmer_phone }}
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="mb-1">
+                                        <i class="bi bi-geo-alt text-danger"></i>
+                                        <strong>{{ t('location') }}:</strong>
+                                    </p>
+                                    <p class="mb-0 ms-3">
+                                        {{ item.address }}<br>
+                                        {{ item.district }}, {{ item.state }} - {{ item.pincode }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        {% set _ = farmers_seen.update({item.farmer_id: True}) %}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Order Summary -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm sticky-top" style="top: 20px;">
+                <div class="card-header bg-warning">
+                    <h5 class="mb-0">
+                        <i class="bi bi-receipt"></i> {{ t('order_summary') }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>{{ t('items') }}:</span>
+                        <span>{{ cart_items|length }}</span>
+                    </div>
+                    
+                    {% set total = namespace(value=0) %}
+                    {% for item in cart_items %}
+                        {% set total.value = total.value + (item.price_per_kg * item.quantity) %}
+                    {% endfor %}
+                    
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>{{ t('subtotal') }}:</span>
+                        <span>₹{{ "%.2f"|format(total.value) }}</span>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>{{ t('delivery') }}:</span>
+                        <span class="text-success">{{ t('free') }}</span>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="d-flex justify-content-between mb-3">
+                        <strong>{{ t('total') }}:</strong>
+                        <strong class="text-primary fs-4">₹{{ "%.2f"|format(total.value) }}</strong>
+                    </div>
+                    
+                    <a href="{{ url_for('checkout') }}" class="btn btn-primary-custom w-100 btn-lg">
+                        <i class="bi bi-credit-card"></i> {{ t('proceed_checkout') }}
+                    </a>
+                    
+                    <a href="{{ url_for('marketplace') }}" class="btn btn-outline-secondary w-100 mt-2">
+                        <i class="bi bi-arrow-left"></i> {{ t('continue_shopping') }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% else %}
+    <!-- Empty Cart -->
+    <div class="text-center py-5">
+        <div class="empty-cart-icon mb-4">
+            <i class="bi bi-cart-x" style="font-size: 5rem; color: #ccc;"></i>
+        </div>
+        <h3 class="text-muted">{{ t('cart empty') }}</h3>
+        <p class="text-muted mb-4">{{ t('Looks like your cart is empty. Explore the marketplace and add items!') }}</p>
+        <a href="{{ url_for('marketplace') }}" class="btn btn-primary-custom btn-lg">
+            <i class="bi bi-shop"></i> {{ t('browse marketplace') }}
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.crop-emoji {
+    font-size: 1.5rem;
+}
+.farmer-info-card {
+    background: linear-gradient(135deg, #f8fff8, #ffffff);
+}
+.farmer-info-card:hover {
+    box-shadow: 0 2px 8px rgba(0,128,0,0.1);
+}
+</style>
+{% endblock %}
