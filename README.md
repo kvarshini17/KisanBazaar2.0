@@ -1,5 +1,7 @@
 # 🌾 KisanBazaar - Direct Farmer to Consumer Marketplace
 
+http://kisan-bazaar-20.vercel.app
+
 A web-based MVP platform enabling **direct farmer-to-consumer trade** with **MSP transparency** and **government scheme awareness**.
 
 ![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)
