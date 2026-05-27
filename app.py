@@ -664,7 +664,7 @@ def view_cart():
     conn = get_db()
     cursor = conn.cursor()
     cursor.execute('''SELECT cart.*, c.crop_name, c.price as price_per_kg, c.location, c.msp_status, c.quantity as available_qty,
-                      f.id as farmer_id, f.name as farmer_name, f.phone as farmer_phone, f.address as farmer_address, f.district, f.state
+                      f.id as farmer_id, f.name as farmer_name, f.phone as farmer_phone, f.address as farmer_address, f.district, f.state, f.pincode as farmer_pincode
                       FROM cart JOIN crops c ON cart.crop_id = c.id JOIN farmers f ON c.farmer_id = f.id WHERE cart.customer_id = ?''',
                   (session['customer_id'],))
     cart_items = cursor.fetchall()
@@ -702,7 +702,7 @@ def update_cart(cart_id):
 def checkout():
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute('''SELECT cart.*, c.crop_name, c.price, c.farmer_id, c.quantity as available_qty, f.name as farmer_name
+    cursor.execute('''SELECT cart.*, c.crop_name, c.price as price_per_kg, c.farmer_id, c.quantity as available_qty, f.name as farmer_name, f.district, f.state
                       FROM cart JOIN crops c ON cart.crop_id = c.id JOIN farmers f ON c.farmer_id = f.id WHERE cart.customer_id = ?''',
                   (session['customer_id'],))
     cart_items = cursor.fetchall()
@@ -713,13 +713,13 @@ def checkout():
     cursor.execute('SELECT * FROM customers WHERE id = ?', (session['customer_id'],))
     customer = cursor.fetchone()
     if request.method == 'POST':
-        delivery_address = request.form.get('address')
+        delivery_address = request.form.get('delivery_address')
         delivery_phone = request.form.get('phone')
         for item in cart_items:
             if item['quantity'] > item['available_qty']:
                 flash(f'Not enough {item["crop_name"]} available', 'danger')
                 continue
-            total_price = item['quantity'] * item['price']
+            total_price = item['quantity'] * item['price_per_kg']
             cursor.execute('''INSERT INTO orders (customer_id, crop_id, farmer_id, quantity, total_price, status, order_date, customer_address, customer_phone)
                              VALUES (?, ?, ?, ?, ?, 'Pending', ?, ?, ?)''',
                           (session['customer_id'], item['crop_id'], item['farmer_id'], item['quantity'], total_price,
@@ -730,7 +730,7 @@ def checkout():
         conn.close()
         flash('Orders placed successfully! You can track them in My Orders.', 'success')
         return redirect(url_for('customer_orders'))
-    total = sum(item['quantity'] * item['price'] for item in cart_items)
+    total = sum(item['quantity'] * item['price_per_kg'] for item in cart_items)
     conn.close()
     return render_template('checkout.html', cart_items=cart_items, total=total, customer=customer)
 
